@@ -6,15 +6,20 @@ import mediaTypes from "./media-types.js"
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const errorHTML = path.resolve(__dirname + '/../frontend/error.html');
+
 
 
 function htmlResponse(filePath, res, statusCode) {
     fs.readFile(filePath, "binary", (err, data) => {
-        res.writeHead(statusCode, {'Content-type': 'text/html'})
+        if(err) {
+            return htmlResponse(errorHTML, res, 404);
+        }
+        const extension = filePath.split('.');
+        res.writeHead(statusCode, {'Content-type': mediaTypes[extension.pop()]});
         res.write(data, "binary");
         res.end();
     });
-
 }
 
 const server = http.createServer((req, res) => {
@@ -22,8 +27,7 @@ const server = http.createServer((req, res) => {
 
     fs.access(filePath, (err) => {
         if(err) {
-            console.log("error");
-            return;
+            return htmlResponse(errorHTML, res, 500);
         }
 
         if(fs.statSync(filePath).isDirectory()) {
