@@ -1,5 +1,7 @@
 import * as http from 'http';
+import mediaTypes from "./media-types.js"
 
+console.log(mediaTypes);
 
 const server = http.createServer((req, res) => {
 
